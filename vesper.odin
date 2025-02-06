@@ -1,23 +1,24 @@
 package main
 
-import "core:fmt"
+import "core:thread"
 import "core:os"
-import "core:net"
+import "core:strings"
+import "cli"
+import "server"
+import "node"
 
-ADDR :: "0.0.0.0"
-PORT :: 2119
 
 main :: proc() {
-    fmt.println("Welcome to the Vesper File Synchronization Service!")
-    host_addr := net.parse_address(ADDR)
+    // Because I have the memory of a goldfish, to run everything, add args -- test -c
+    if cli.parse_args() {
+        t := thread.create(node.client)
+        if len(os.args) >= 3 && strings.compare(os.args[2], "-c") == 0 {
+            thread.start(t)
+        }
 
-    host_conn, hc_err := net.make_bound_udp_socket(host_addr, PORT); if hc_err != nil {
-        fmt.println("Unable to connect to host addr")
-        return
-    }
-    defer net.close(host_conn)
-    
-    for arg in os.args {
-        fmt.println(arg)
+        server.server()
+
+        thread.join(t)
+        thread.destroy(t)
     }
 }
