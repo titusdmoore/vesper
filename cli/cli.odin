@@ -6,7 +6,7 @@ import "core:strings"
 import "core:thread"
 
 import "../node"
-import "../server"
+import "../network"
 // Commands
 // Add Node
 // fails on non-init
@@ -16,10 +16,12 @@ import "../server"
 // Adds path to parent .vesper, fails on non init
 
 Commands :: enum {
+	// Initializes directory with files needs to start tracking other nodes, and files. NOTE: does not track any files yet. Sets up service.
 	Init,
 	WatchDir,
 	AddNode,
 	UDPTest,
+	Reset,
 	Invalid,
 }
 
@@ -38,6 +40,8 @@ parse_args :: proc() -> bool {
 			test()
 		case .Init:
 			init()
+		case .Reset:
+			reset()
 	}
 
 	return strings.compare(os.args[1], "test") == 0
@@ -53,6 +57,8 @@ parse_command :: proc(arg_command: string) -> (Commands, bool) {
 			return Commands.AddNode, true
 		case strings.compare(arg_command, "test") == 0: 
 			return Commands.UDPTest, true
+		case strings.compare(arg_command, "reset") == 0: 
+			return Commands.Reset, true
 		case:
 			return Commands.Invalid, false
 	}
@@ -64,12 +70,31 @@ test :: proc() {
 		thread.start(t)
 	}
 
-	server.server()
+	network.server()
 
 	thread.join(t)
 	thread.destroy(t)
 }
 
 init :: proc() {
+	if !os.is_dir(".vesper") {
+		mkdir_err := os.make_directory(".vesper"); if mkdir_err != nil {
+			fmt.println("Unable to make dir")
+		}
+		
+		handle, err := os.open(".vesper/hosts", os.O_APPEND); if err != nil {
 
+		}
+		defer os.close(handle)
+
+		return
+	}
+
+	fmt.println("Directory already setup with vesper")
+}
+
+reset :: proc() {
+	if os.is_dir(".vesper") {
+		os.remove_directory(".vesper")
+	}
 }
