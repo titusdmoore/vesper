@@ -12,3 +12,8 @@ get_sockname :: proc(socket: net.UDP_Socket) {
     windows.getsockname(transmute(windows.SOCKET)socket, &addr, &addr_size)
     fmt.println(addr)
 }
+
+get_host_socket_info :: proc(socket: net.UDP_Socket) -> string {
+
+    return "Hello, World"
+}

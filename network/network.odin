@@ -3,6 +3,8 @@ package network
 import "core:fmt"
 import "core:net"
 import "core:strings"
+import "./sockets"
+
 
 PORT :: 2119
 BUF_SIZE :: 1024
@@ -21,7 +23,7 @@ startup :: proc() {
     defer net.close(skt)
 
     // Get sockname for ip logging into config
-    get_sockname(skt)
+    sockets.get_sockname(skt)
 
     full_message := ""
     buf := make([]u8, BUF_SIZE)
