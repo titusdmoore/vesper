@@ -3,31 +3,14 @@ package network
 import "core:fmt"
 import "core:net"
 import "core:strings"
-// Move these to a when
-// import "core:sys/linux"
-import "core:sys/windows"
 
 PORT :: 2119
 BUF_SIZE :: 1024
 
 verify_and_update_hosts :: proc() {
-
 }
 
 handle_verify_request :: proc() {}
-
-get_sockname :: proc(socket: net.UDP_Socket) {
-    #partial switch ODIN_OS {
-        case .Windows:
-            fmt.println("This is inside the windows version")
-            addr: windows.SOCKADDR_STORAGE_LH
-            addr_size: i32
-            windows.getsockname(transmute(windows.SOCKET)socket, &addr, &addr_size)
-            fmt.println(addr)
-        case .Linux:
-            linux.getsockname() 
-    }
-}
 
 startup :: proc() {
     addr_any := net.parse_address("0.0.0.0")
