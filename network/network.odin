@@ -3,13 +3,13 @@ package network
 import "core:fmt"
 import "core:net"
 import "core:strings"
-import "./sockets"
-
+import "sockets"
 
 PORT :: 2119
 BUF_SIZE :: 1024
 
 verify_and_update_hosts :: proc() {
+
 }
 
 handle_verify_request :: proc() {}

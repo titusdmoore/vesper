@@ -1,5 +1,8 @@
 package network 
 
+import "core:fmt"
+import "base:runtime"
+
 DatagramType :: enum u8 {
     DiscoverHost = 0x01,
     HostSyncReq = 0x02,
@@ -13,7 +16,7 @@ INET_Version :: enum u8 {
 }
 
 Header :: struct {
-    magic_number: u16 `0xDCCC`,
+    magic_number: u16 `vesper-value: "0xDCCC"`,
     version: u8,
     type: DatagramType,
     source_ip: [8]u8,
@@ -22,9 +25,24 @@ Header :: struct {
     payload_length: u8,
 }
 
+Datagram :: struct($T: typeid) {
+    using header: Header,
+
+    body: T 
+}
+
+TestingDatagram :: struct {
+    message: string
+}
+
 DiscoverHost :: struct {
     // Host Resolved indicates whether this is the response message, with the host value being meaningful
     host_resolved: bool,
     resolved_host: [8]u8,
-    using Header,
+}
+
+build_datagram :: proc(datagram: $T/Datagram) -> []u8 {
+    fmt.println("Hello, World!")
+    s := "hello"
+    return transmute([]u8)s
 }
