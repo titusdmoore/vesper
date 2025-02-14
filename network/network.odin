@@ -3,6 +3,7 @@ package network
 import "core:fmt"
 import "core:net"
 import "core:strings"
+import "core:mem"
 import "sockets"
 
 PORT :: 2119
@@ -14,7 +15,7 @@ verify_and_update_hosts :: proc() {
 
 handle_verify_request :: proc() {}
 
-startup :: proc() {
+startup :: proc(initiate: bool, remote: net.Address) {
     addr_any := net.parse_address("0.0.0.0")
     // We may want dynamic ports
     skt, net_err := net.make_bound_udp_socket(addr_any, PORT); if net_err != nil {
@@ -27,6 +28,31 @@ startup :: proc() {
 
     full_message := ""
     buf := make([]u8, BUF_SIZE)
+    
+    if initiate {
+        ep := net.Endpoint{ address = remote, port = PORT }
+
+        dg: Datagram(TestingDatagram)
+        dg.header = Header {
+            // TODO: Covert over to default value
+            magic_number = 0xDCCC,
+            version = 1,
+            type = DatagramType.Test,
+            source_ip = [8]u8{1, 1, 1, 1, 0, 0, 0, 0},
+            source_port = PORT,
+            inet_version = INET_Version.AF_INET,
+            payload_length = len(mem.any_to_bytes(dg.body))
+        }
+        dg.body.message = "Hello, from origin host"
+        dg_bytes := build_datagram(dg)	
+
+        written, send_err := net.send_udp(skt, dg_bytes, ep); if send_err != nil {
+            fmt.println("Unable to send message to Endpoint:", ep)
+            return
+        }
+        fmt.printfln("Wrote %d bytes to endpoint", written)
+    }
+
     for {
         // This loop handles a single request, repeatedly reading until message is done
         for {
@@ -41,6 +67,8 @@ startup :: proc() {
                 break
             }
         }
+
+        fmt.println("Recieved %d bytes", len(full_message))
     }
 }
 

@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:os"
 import "core:strings"
 import "core:thread"
+import "core:net"
 
 import "../node"
 import "../network"
@@ -65,15 +66,16 @@ parse_command :: proc(arg_command: string) -> (Commands, bool) {
 }
 
 test :: proc() {
-	t := thread.create(node.client)
-	if len(os.args) >= 3 && strings.compare(os.args[2], "-c") == 0 {
-		thread.start(t)
+	initiate := false
+	addr: net.Address
+
+	// -i for initiate, will send first response to client
+	if len(os.args) >= 4 && strings.compare(os.args[2], "-i") == 0 {
+		initiate = true
+		addr = net.parse_address(os.args[3])
 	}
 
-	network.server()
-
-	thread.join(t)
-	thread.destroy(t)
+	network.startup(initiate, addr)
 }
 
 init :: proc() {
