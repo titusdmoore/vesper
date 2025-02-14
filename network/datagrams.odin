@@ -2,12 +2,14 @@ package network
 
 import "core:fmt"
 import "base:runtime"
+import "core:mem"
 
 DatagramType :: enum u8 {
     DiscoverHost = 0x01,
     HostSyncReq = 0x02,
     HostSyncRes = 0x03,
     Heartbeat = 0x04,
+    Test = 0xff
 }
 
 INET_Version :: enum u8 {
@@ -22,7 +24,7 @@ Header :: struct {
     source_ip: [8]u8,
     source_port: u16,
     inet_version: INET_Version,
-    payload_length: u8,
+    payload_length: uint,
 }
 
 Datagram :: struct($T: typeid) {
@@ -42,7 +44,7 @@ DiscoverHost :: struct {
 }
 
 build_datagram :: proc(datagram: $T/Datagram) -> []u8 {
-    fmt.println("Hello, World!")
-    s := "hello"
-    return transmute([]u8)s
+    return mem.any_to_bytes(datagram)
 }
+
+// serialize_bytes_to_datagram :: proc()

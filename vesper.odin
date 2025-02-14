@@ -4,32 +4,33 @@ import "core:fmt"
 import "cli"
 import "network"
 import "base:runtime"
+import "core:mem"
+import "core:bytes"
 
 main :: proc() {
 	// Because I have the memory of a goldfish, to run everything, odin run . -- test -c
 	// cli.parse_args()
 	// network.startup()
 	dg: network.Datagram(network.TestingDatagram)
-	dg.body.message = "hello, world"
-	network.build_datagram(dg)	
-
-	fmt.println("# struct_field_tags");
-	Foo :: struct {
-		x: int    `tag1`,
-		y: string `tag2`,
-		z: bool, // no tag
+	dg.header = network.Header {
+		version = 1,
+		type = network.DatagramType.Test,
+		source_ip = [8]u8{1, 1, 1, 1, 0, 0, 0, 0},
+		source_port = network.PORT,
+		inet_version = network.INET_Version.AF_INET,
+		payload_length = len(mem.any_to_bytes(dg.body))
 	}
-	f: Foo;
-	ti := runtime.type_info_base(type_info_of(Foo));
-	s := ti.variant.(runtime.Type_Info_Struct);
-	fmt.println(s);
-	// for i in s.names {
-	// 	if tag := s.tags[i]; tag != "" {
-	// 		fmt.printf("\t%s: %T `%s`,\n", s.names[i], s.types[i], tag);
-	// 	} else {
-	// 		fmt.printf("\t%s: %T,\n", s.names[i], s.types[i]);
-	// 	}
-	// }
-	// fmt.println("}");
+	dg.body.message = "hello, world"
+	dg_bytes := network.build_datagram(dg)	
+	fmt.println(dg_bytes)
+	fmt.println(len(dg_bytes))
+	fmt.println(size_of(network.Datagram(network.TestingDatagram)))
+	// fmt.println(transmute([]u8)dg)
+	test_dg := transmute(^network.Datagram(network.TestingDatagram))bytes.ptr_from_bytes(dg_bytes)
+	fmt.println(test_dg^)
+	fmt.println(size_of(network.TestingDatagram))
+	// header_len := size_of(network.Header)
+	// header_bytes := bytes[:header_len]
+	// rebuilt_header := transmute(network.Header)header_bytes[:]
 }
 
