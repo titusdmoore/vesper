@@ -50,7 +50,7 @@ startup :: proc(initiate: bool, remote: net.Address) {
             fmt.println("Unable to send message to Endpoint:", ep)
             return
         }
-        fmt.printfln("Wrote %d bytes to endpoint", written)
+        fmt.printfln("Wrote %v bytes to endpoint: %#v", written, ep)
     }
 
     for {
@@ -68,7 +68,7 @@ startup :: proc(initiate: bool, remote: net.Address) {
             }
         }
 
-        fmt.println("Recieved %d bytes", len(full_message))
+        fmt.printfln("Recieved %v bytes with message\n%#v", len(full_message), full_message)
     }
 }
 
