@@ -45,12 +45,13 @@ startup :: proc(initiate: bool, remote: net.Address) {
         }
         dg.body.message = "Hello, from origin host"
         dg_bytes := build_datagram(dg)	
+        fmt.println(dg_bytes)
 
         written, send_err := net.send_udp(skt, dg_bytes, ep); if send_err != nil {
             fmt.println("Unable to send message to Endpoint:", ep)
             return
         }
-        fmt.printfln("Wrote %v bytes to endpoint: %#v", written, ep)
+        fmt.printfln("Wrote %v bytes to endpoint", written)
     }
 
     for {
