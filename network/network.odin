@@ -26,9 +26,6 @@ startup :: proc(initiate: bool, remote: net.Address) {
     // Get sockname for ip logging into config
     sockets.get_sockname(skt)
 
-    full_message := ""
-    buf := make([]u8, BUF_SIZE)
-    
     if initiate {
         ep := net.Endpoint{ address = remote, port = PORT }
 
@@ -54,6 +51,9 @@ startup :: proc(initiate: bool, remote: net.Address) {
         fmt.printfln("Wrote %v bytes to endpoint", written)
     }
 
+    message: [dynamic]u8
+    buf := make([]u8, BUF_SIZE)
+    
     for {
         // This loop handles a single request, repeatedly reading until message is done
         for {
@@ -64,14 +64,14 @@ startup :: proc(initiate: bool, remote: net.Address) {
 
             fmt.println("Found something.", read_size, sending_skt)
 
-            strings.concatenate({full_message, transmute(string)buf})
+            append(&message, ..buf[:read_size])
 
             if (read_size < BUF_SIZE) {
                 break
             }
         }
 
-        fmt.printfln("Recieved %v bytes with message\n%#v", len(full_message), full_message)
+        fmt.printfln("Recieved %v bytes with message\n%#v", len(message), message)
     }
 }
 
