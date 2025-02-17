@@ -71,7 +71,7 @@ startup :: proc(initiate: bool, remote: net.Address) {
             }
         }
 
-        fmt.printfln("Recieved %v bytes with message\n%#v", len(message))
+        fmt.printfln("Recieved %v bytes with message", len(message))
         fmt.println(parse_bytes(message[:], Datagram(TestingDatagram)))
     }
 }
