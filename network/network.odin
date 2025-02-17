@@ -53,6 +53,7 @@ startup :: proc(initiate: bool, remote: net.Address) {
 
     message: [dynamic]u8
     buf := make([]u8, BUF_SIZE)
+    defer delete(buf)
     
     for {
         // This loop handles a single request, repeatedly reading until message is done
@@ -62,8 +63,7 @@ startup :: proc(initiate: bool, remote: net.Address) {
                 return
             }
 
-            fmt.println("Found something.", read_size, sending_skt)
-
+            // Note for future reference, we need to specify size of read buffer otherwise we may get bad data since we don't zero.
             append(&message, ..buf[:read_size])
 
             if (read_size < BUF_SIZE) {
@@ -71,7 +71,8 @@ startup :: proc(initiate: bool, remote: net.Address) {
             }
         }
 
-        fmt.printfln("Recieved %v bytes with message\n%#v", len(message), message)
+        fmt.printfln("Recieved %v bytes with message\n%#v", len(message))
+        fmt.println(parse_bytes(message[:], Datagram(TestingDatagram)))
     }
 }
 
