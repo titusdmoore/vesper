@@ -28,13 +28,13 @@ Header :: struct {
     payload_length: uint,
 }
 
-Datagram :: struct($T: typeid) {
+Datagram :: struct($T: typeid) #packed {
     using header: Header,
 
     body: T 
 }
 
-TestingDatagram :: struct {
+TestingDatagram :: struct #packed {
     message: string
 }
 
