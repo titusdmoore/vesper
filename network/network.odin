@@ -62,6 +62,8 @@ startup :: proc(initiate: bool, remote: net.Address) {
                 return
             }
 
+            fmt.println("Found something.", read_size, sending_skt)
+
             strings.concatenate({full_message, transmute(string)buf})
 
             if (read_size < BUF_SIZE) {
