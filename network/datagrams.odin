@@ -35,7 +35,8 @@ Datagram :: struct($T: typeid) #packed {
 }
 
 TestingDatagram :: struct #packed {
-    message: string
+    message: string,
+    respond: bool,
 }
 
 DiscoverHost :: struct {
