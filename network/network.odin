@@ -13,27 +13,9 @@ BUF_SIZE :: 1024
 verify_and_update_hosts :: proc() {}
 handle_verify_request :: proc() {}
 handle_test_request :: proc(message_slice: []u8, header: ^Header, remote_skt: net.Endpoint) {
-	test_dg := parse_bytes(message_slice, Datagram(TestingDatagram))
-	fmt.printfln("Recieved test message from remote: %v", test_dg.body.message)
-
-	if test_dg.body.respond {
-		dg: Datagram(TestingDatagram)
-		dg.header = Header {
-			// TODO: Covert over to default value
-			magic_number   = 0xDCCC,
-			version        = 1,
-			type           = DatagramType.Test,
-			source_ip      = [8]u8{1, 1, 1, 1, 0, 0, 0, 0},
-			source_port    = PORT,
-			inet_version   = INET_Version.AF_INET,
-			payload_length = len(mem.any_to_bytes(dg.body)),
-		}
-		dg.body = TestingDatagram {
-			message = "Hello from Guest",
-			respond = false,
-		}
-		dg_bytes := build_datagram(dg)
-	}
+	test_dg, message := try_parse_test_request(message_slice)
+	fmt.printfln("Recieved test message from remote: %v", transmute(string)message)
+	fmt.println(test_dg)
 }
 
 handle_request :: proc(message_slice: []u8, remote_socket: net.Endpoint) {
@@ -68,6 +50,12 @@ startup :: proc(initiate: bool, remote: net.Address) {
 		}
 
 		dg: Datagram(TestingDatagram)
+		message := "Hello from Host"
+		body_struct := TestingDatagram {
+			message_size = len(message),
+			respond      = true,
+		}
+
 		dg.header = Header {
 			// TODO: Covert over to default value
 			magic_number   = 0xDCCC,
@@ -76,13 +64,10 @@ startup :: proc(initiate: bool, remote: net.Address) {
 			source_ip      = [8]u8{1, 1, 1, 1, 0, 0, 0, 0},
 			source_port    = PORT,
 			inet_version   = INET_Version.AF_INET,
-			payload_length = len(mem.any_to_bytes(dg.body)),
+			payload_length = len(mem.any_to_bytes(body_struct)) + len(message),
 		}
-		dg.body = TestingDatagram {
-			message = "Hello from Host",
-			respond = true,
-		}
-		dg_bytes := build_datagram(dg)
+		dg.body = body_struct
+		dg_bytes := build_datagram(dg, transmute([]u8)message)
 		fmt.println(dg_bytes)
 		fmt.println(parse_bytes(dg_bytes, Datagram(TestingDatagram)))
 
@@ -149,4 +134,3 @@ server :: proc() {
 
 	fmt.println(full_message)
 }
-

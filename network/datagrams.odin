@@ -55,6 +55,12 @@ build_datagram :: proc(datagram: $T/Datagram, additional_bytes: ..[]u8) -> []u8 
 	return full_message[:]
 }
 
+try_parse_test_request :: proc(raw_bytes: []u8) -> (^Datagram(TestingDatagram), []u8) {
+	dg := transmute(^Datagram(TestingDatagram))bytes.ptr_from_bytes(raw_bytes)
+
+	return dg, raw_bytes[size_of(Datagram(TestingDatagram)):][:dg.body.message_size]
+}
+
 parse_bytes :: proc(datagram_bytes: []u8, $T: typeid) -> ^T {
 	/* As I thought this through, I am not sure I need to really do anything with the header since 
     the intended call of this function would be in a message recieved handler, which would need 
