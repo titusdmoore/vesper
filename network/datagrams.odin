@@ -34,8 +34,8 @@ Datagram :: struct($T: typeid) #packed {
 }
 
 TestingDatagram :: struct #packed {
-	message: string,
-	respond: bool,
+	message_size: uint,
+	respond:      bool,
 }
 
 DiscoverHost :: struct {
@@ -44,8 +44,15 @@ DiscoverHost :: struct {
 	resolved_host: [8]u8,
 }
 
-build_datagram :: proc(datagram: $T/Datagram) -> []u8 {
-	return mem.any_to_bytes(datagram)
+build_datagram :: proc(datagram: $T/Datagram, additional_bytes: ..[]u8) -> []u8 {
+	full_message: [dynamic]u8
+	append(&full_message, ..mem.any_to_bytes(datagram))
+
+	for bytes in additional_bytes {
+		append(&full_message, ..bytes)
+	}
+
+	return full_message[:]
 }
 
 parse_bytes :: proc(datagram_bytes: []u8, $T: typeid) -> ^T {
@@ -64,4 +71,3 @@ parse_bytes :: proc(datagram_bytes: []u8, $T: typeid) -> ^T {
 }
 
 // serialize_bytes_to_datagram :: proc()
-
