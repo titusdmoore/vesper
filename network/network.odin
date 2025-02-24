@@ -102,6 +102,7 @@ startup :: proc(initiate: bool, remote: net.Address) {
 			}
 		}
 
+		fmt.println("Got Message")
 		handle_request(message[:], send_skt)
 	}
 }

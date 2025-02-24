@@ -38,6 +38,22 @@ TestingDatagram :: struct #packed {
 	respond:      bool,
 }
 
+// Process as I plan it. 
+InitializeFileTransferDatagram :: struct #packed {
+	file_name_size: uint,
+	expiration:     uint,
+	file_size:      uint,
+	transfer_id:    u32,
+	checksum:       [256]u8,
+	packet_count:   uint,
+}
+
+FileTransferPacketDatagram :: struct #packed {
+	transfer_id:          u32,
+	packet_size:          uint,
+	file_packet_order_id: uint,
+}
+
 DiscoverHost :: struct {
 	// Host Resolved indicates whether this is the response message, with the host value being meaningful
 	host_resolved: bool,
